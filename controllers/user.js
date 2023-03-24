@@ -1,16 +1,21 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { sendError, generateRandomByte } = require("../utils/helper");
+const { sendError, uploadImageToCloud } = require("../utils/helper");
 const { isValidObjectId } = require("mongoose");
 
 exports.create = async (req, res) => {
   const { name, phone, password } = req.body;
+  const { file } = req;
 
   const oldUser = await User.findOne({ phone });
 
   if (oldUser) return sendError(res, "This phone is already in use!");
 
   const newUser = new User({ name, phone, password });
+  if (file) {
+    const { url, public_id } = await uploadImageToCloud(file.path);
+    newUser.avatar = { url, public_id };
+  }
   await newUser.save();
 
   res.status(201).json({
@@ -18,6 +23,7 @@ exports.create = async (req, res) => {
       id: newUser._id,
       name: newUser.name,
       phone: newUser.phone,
+      avatar: newUser.avatar?.url,
     },
   });
 };
@@ -31,7 +37,7 @@ exports.signIn = async (req, res) => {
   const matched = await user.comparePassword(password);
   if (!matched) return sendError(res, "Phone/Password mismatch!");
 
-  const { _id, name, role, isVerified } = user;
+  const { _id, name, role, isVerified, avatar } = user;
 
   const jwtToken = jwt.sign({ userId: _id }, process.env.JWT_SECRET);
 
@@ -56,5 +62,6 @@ exports.signIn = async (req, res) => {
     role,
     token: jwtToken,
     isVerified,
+    avatar,
   });
 };

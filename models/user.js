@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const cloudinary = require("../cloud");
 
 const userSchema = mongoose.Schema({
   name: {
@@ -27,6 +28,11 @@ const userSchema = mongoose.Schema({
     required: true,
     default: "user",
     enum: ["admin", "user"],
+  },
+  avatar: {
+    type: Object,
+    url: String,
+    public_id: String,
   },
 });
 
