@@ -5,17 +5,25 @@ const { isValidObjectId } = require("mongoose");
 
 exports.create = async (req, res) => {
   const { name, phone, password } = req.body;
-  const { file } = req;
+  // const { file } = req;
 
   const oldUser = await User.findOne({ phone });
 
   if (oldUser) return sendError(res, "This phone is already in use!");
 
   const newUser = new User({ name, phone, password });
-  if (file) {
-    const { url, public_id } = await uploadImageToCloud(file.path);
-    newUser.avatar = { url, public_id };
-  }
+
+  // if (file) {
+  //   const { url, public_id } = await uploadImageToCloud(file.path);
+  //   newUser.avatar = { url, public_id };
+  // }
+
+  const url =
+    "https://res.cloudinary.com/myshop-it/image/upload/v1679623840/ufe5mhdfffpudxehvgvl.png";
+  const public_id = "ufe5mhdfffpudxehvgvl";
+
+  newUser.avatar = { url, public_id };
+
   await newUser.save();
 
   res.status(201).json({
