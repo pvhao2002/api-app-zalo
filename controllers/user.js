@@ -6,6 +6,7 @@ const {
   sendError,
   uploadImageToCloud,
   generateRandomByte,
+  formatUser,
 } = require("../utils/helper");
 const { isValidObjectId } = require("mongoose");
 const { generateOTP, generatePhoneTransporter } = require("../utils/phone");
@@ -26,15 +27,15 @@ exports.create = async (req, res) => {
   // }
 
   const url =
-    "https://res.cloudinary.com/myshop-it/image/upload/v1679623840/ufe5mhdfffpudxehvgvl.png";
-  const public_id = "ufe5mhdfffpudxehvgvl";
+    "https://res.cloudinary.com/myshop-it/image/upload/v1669052876/nnldaw9n0z6ayopgjvy8.jpg";
+  const public_id = "nnldaw9n0z6ayopgjvy8";
 
   newUser.avatar = { url, public_id };
 
   await newUser.save();
 
   let OTP = generateOTP();
-
+  console.log(OTP);
   const newPhoneVerificationToken = new PhoneVerificationToken({
     owner: newUser._id,
     token: OTP,
@@ -42,21 +43,13 @@ exports.create = async (req, res) => {
 
   await newPhoneVerificationToken.save();
 
-  // let publishTextPromise = generatePhoneTransporter(newUser.phone, OTP);
-  // publishTextPromise
-  //   .then(function (data) {
-  //     res.end(JSON.stringify({ MessageID: data.MessageId }));
-  //   })
-  //   .catch(function (err) {
-  //     res.end(JSON.stringify({ Error: err }));
-  //   });
+  generatePhoneTransporter(phone, OTP);
 
   res.status(201).json({
     user: {
       id: newUser._id,
       name: newUser.name,
       phone: newUser.phone,
-      avatar: newUser.avatar?.url,
     },
   });
 };
@@ -123,14 +116,7 @@ exports.resendPhoneVerificationToken = async (req, res) => {
 
   await newPhoneVerificationToken.save();
 
-  // let publishTextPromise = generatePhoneTransporter(user.phone, OTP);
-  // publishTextPromise
-  //   .then(function (data) {
-  //     res.end(JSON.stringify({ MessageID: data.MessageId }));
-  //   })
-  //   .catch(function (err) {
-  //     res.end(JSON.stringify({ Error: err }));
-  //   });
+  generatePhoneTransporter(phone, OTP);
 
   res.json({
     message: "New OTP has been sent to your phone.",
@@ -153,6 +139,7 @@ exports.forgetPassword = async (req, res) => {
     );
 
   let OTP = generateOTP();
+  console.log(OTP);
 
   const newPasswordResetToken = await PasswordResetToken({
     owner: user._id,
@@ -160,14 +147,7 @@ exports.forgetPassword = async (req, res) => {
   });
   await newPasswordResetToken.save();
 
-  // let publishTextPromise = generatePhoneTransporter(user.phone, OTP);
-  // publishTextPromise
-  //   .then(function (data) {
-  //     res.end(JSON.stringify({ MessageID: data.MessageId }));
-  //   })
-  //   .catch(function (err) {
-  //     res.end(JSON.stringify({ Error: err }));
-  //   });
+  generatePhoneTransporter(phone, OTP);
 
   res.json({
     id: user._id,
@@ -222,4 +202,17 @@ exports.signIn = async (req, res) => {
     isVerified,
     avatar,
   });
+};
+
+exports.searchUser = async (req, res) => {
+  const { name } = req.body;
+
+  if (!name.trim()) return sendError(res, "Not found name");
+
+  const result = await User.find({
+    name: { $regex: name, $options: "i" },
+  });
+
+  const users = result.map((user) => formatUser(user));
+  res.json({ results: users });
 };

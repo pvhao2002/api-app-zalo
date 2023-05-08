@@ -27,3 +27,17 @@ exports.uploadImageToCloud = async (file) => {
 
   return { url, public_id };
 };
+
+exports.formatUser = (user) => {
+  const { name, phone, role, _id, isVerified, avatar } = user;
+  return {
+    id: _id,
+    name,
+    phone,
+    role,
+    isVerified,
+    avatar: avatar?.url,
+  };
+};
+
+exports.formatChat = (chat) => {};
