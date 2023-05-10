@@ -24,7 +24,7 @@ exports.accessChat = async (req, res) => {
     select: "name phone isVerified role avatar",
   });
 
-  res.status(200).json(isChat);
+  res.json(isChat);
 };
 
 exports.getChats = async (req, res) => {
@@ -35,6 +35,13 @@ exports.getChats = async (req, res) => {
     .populate("owner", "-password")
     .populate("latestMessage")
     .sort({ updatedAt: -1 });
+
+  if (!chats) return sendError(res, "Chat not found!");
+
+  chats = await User.populate(chats, {
+    path: "latestMessage.sender",
+    select: "name phone isVerified role avatar",
+  });
 
   res.json({ chats });
 };

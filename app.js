@@ -16,7 +16,6 @@ const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 
 app.use(cors());
-
 app.use(express.json());
 app.use(morgan("dev"));
 app.use("/api/user", userRouter);

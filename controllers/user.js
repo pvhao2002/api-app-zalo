@@ -43,7 +43,7 @@ exports.create = async (req, res) => {
 
   await newPhoneVerificationToken.save();
 
-  generatePhoneTransporter(phone, OTP);
+  // generatePhoneTransporter(phone, OTP);
 
   res.status(201).json({
     user: {
@@ -116,7 +116,7 @@ exports.resendPhoneVerificationToken = async (req, res) => {
 
   await newPhoneVerificationToken.save();
 
-  generatePhoneTransporter(phone, OTP);
+  // generatePhoneTransporter(phone, OTP);
 
   res.json({
     message: "New OTP has been sent to your phone.",
@@ -147,7 +147,7 @@ exports.forgetPassword = async (req, res) => {
   });
   await newPasswordResetToken.save();
 
-  generatePhoneTransporter(phone, OTP);
+  // generatePhoneTransporter(phone, OTP);
 
   res.json({
     id: user._id,
