@@ -44,7 +44,7 @@ exports.accessChat = async (req, res) => {
 
   isChat = await User.populate(isChat, {
     path: "latestMessage.sender",
-    select: "name phone isVerified role avatar",
+    select: "name phone isVerified avatar",
   });
 
   res.json(isChat);
@@ -63,7 +63,7 @@ exports.getChats = async (req, res) => {
 
   chats = await User.populate(chats, {
     path: "latestMessage.sender",
-    select: "name phone isVerified role avatar",
+    select: "name phone isVerified avatar",
   });
 
   res.json({ chats });
