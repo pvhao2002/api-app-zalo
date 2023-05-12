@@ -7,6 +7,9 @@ const {
   forgetPassword,
   resetPassword,
   sendResetPasswordTokenStatus,
+  addFriend,
+  getAllRequestAddFriend,
+  answerRequestAddFriend,
 } = require("../controllers/user");
 const { uploadImage } = require("../middlewares/multer");
 const { isAuth } = require("../middlewares/auth");
@@ -25,7 +28,9 @@ router.post(
   sendResetPasswordTokenStatus
 );
 router.post("/reset-password", isValidPassResetToken, resetPassword);
-
+router.post("/add-friend", isAuth, addFriend);
+router.get("/request-add-friends", isAuth, getAllRequestAddFriend);
+router.post("/answer-request-add-friend", isAuth, answerRequestAddFriend);
 router.get("/is-auth", isAuth, (req, res) => {
   const { user } = req;
   res.json({

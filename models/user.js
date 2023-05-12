@@ -22,12 +22,12 @@ const userSchema = mongoose.Schema({
     required: true,
     default: false,
   },
-  role: {
-    type: String,
-    required: true,
-    default: "user",
-    enum: ["admin", "user"],
-  },
+  friends: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   avatar: {
     type: Object,
     url: String,

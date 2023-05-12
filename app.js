@@ -8,6 +8,7 @@ require("./db");
 
 const userRouter = require("./routes/user");
 const chatRouter = require("./routes/chat");
+const messageRouter = require("./routes/message");
 const { handleNotFound } = require("./utils/helper");
 const { errorHandler } = require("./middlewares/error");
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use("/api/user", userRouter);
 app.use("/api/chat", chatRouter);
+app.use("/api/message", messageRouter);
 
 app.use("/*", handleNotFound);
 app.use(errorHandler);

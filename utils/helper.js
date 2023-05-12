@@ -34,7 +34,6 @@ exports.formatUser = (user) => {
     id: _id,
     name,
     phone,
-    role,
     isVerified,
     avatar: avatar?.url,
   };

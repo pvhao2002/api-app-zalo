@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const PhoneVerificationToken = require("../models/phoneVerificationToken");
 const PasswordResetToken = require("../models/passwordResetToken");
+const RequestAddFriend = require("../models/requestAddFriend");
 const {
   sendError,
   uploadImageToCloud,
@@ -82,7 +83,6 @@ exports.verifyPhone = async (req, res) => {
       phone: user.phone,
       token: jwtToken,
       isVerified: user.isVerified,
-      role: user.role,
     },
     message: "Your phone is verified.",
   });
@@ -197,7 +197,6 @@ exports.signIn = async (req, res) => {
     id: _id,
     name,
     phone,
-    role,
     token: jwtToken,
     isVerified,
     avatar,
@@ -215,4 +214,43 @@ exports.searchUser = async (req, res) => {
 
   const users = result.map((user) => formatUser(user));
   res.json({ results: users });
+};
+
+exports.addFriend = async (req, res) => {
+  const { userId } = req.body;
+
+  const requestAddFriend = await RequestAddFriend({
+    owner: req.user,
+    receiver: userId,
+  });
+  await requestAddFriend.save();
+
+  res.json(requestAddFriend);
+};
+
+exports.getAllRequestAddFriend = async (req, res) => {
+  const request = await RequestAddFriend.find({
+    receiver: req.user._id,
+  });
+
+  res.json(request);
+};
+
+exports.answerRequestAddFriend = async (req, res) => {
+  const { answer, requestId } = req.body;
+  const user = await User.findById(req.user._id);
+  const request = await RequestAddFriend.findById({
+    _id: requestId,
+    receiver: req.user._id,
+  });
+
+  if (answer === "yes") {
+    user.friends.push(request.owner);
+    await user.save();
+    await request.delete();
+  } else {
+    await request.delete();
+  }
+
+  res.json({ message: "Answered request" });
 };
