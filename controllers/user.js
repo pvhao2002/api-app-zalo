@@ -11,6 +11,7 @@ const {
 } = require("../utils/helper");
 const { isValidObjectId } = require("mongoose");
 const { generateOTP, generatePhoneTransporter } = require("../utils/phone");
+const cloudinary = require("../cloud");
 
 exports.create = async (req, res) => {
   const { name, phone, password } = req.body;
@@ -37,7 +38,7 @@ exports.create = async (req, res) => {
 
   let OTP = generateOTP();
   console.log(OTP);
-  const newPhoneVerificationToken = new PhoneVerificationToken({
+  const newPhoneVerificationToken = await PhoneVerificationToken({
     owner: newUser._id,
     token: OTP,
   });
@@ -83,6 +84,7 @@ exports.verifyPhone = async (req, res) => {
       phone: user.phone,
       token: jwtToken,
       isVerified: user.isVerified,
+      avatar: user.avatar,
     },
     message: "Your phone is verified.",
   });
@@ -109,7 +111,7 @@ exports.resendPhoneVerificationToken = async (req, res) => {
 
   let OTP = generateOTP();
 
-  const newPhoneVerificationToken = new PhoneVerificationToken({
+  const newPhoneVerificationToken = await PhoneVerificationToken({
     owner: user._id,
     token: OTP,
   });
@@ -155,12 +157,33 @@ exports.forgetPassword = async (req, res) => {
   });
 };
 
-exports.sendResetPasswordTokenStatus = (req, res) => {
+exports.sendResetPasswordTokenStatus = (req, res, next) => {
   res.json({ valid: true });
+};
+
+exports.changePassword = async (req, res) => {
+  const { newPassword } = req.body;
+
+  const user = await User.findById(req.user._id);
+  const matched = await user.comparePassword(newPassword);
+  if (matched)
+    return sendError(
+      res,
+      "The new password must be different from the old one!"
+    );
+
+  user.password = newPassword;
+  await user.save();
+
+  res.json({
+    message: "Password is changed successfully, now you can use new password.",
+  });
 };
 
 exports.resetPassword = async (req, res) => {
   const { newPassword, userId } = req.body;
+
+  if (!isValidObjectId(userId)) return sendError(res, "Invalid user");
 
   const user = await User.findById(userId);
   const matched = await user.comparePassword(newPassword);
@@ -180,6 +203,33 @@ exports.resetPassword = async (req, res) => {
   });
 };
 
+exports.deleteUser = async (req, res) => {
+  await User.findByIdAndDelete(req.user._id);
+
+  res.json({ message: "Account is deleted" });
+};
+
+exports.uploadImageUser = async (req, res) => {
+  const { file } = req;
+  const user = await User.findById(req.user._id);
+  const public_id = user.avatar?.public_id;
+
+  if (public_id && file) {
+    const { result } = await cloudinary.uploader.destroy(public_id);
+    if (result !== "ok") {
+      return sendError(res, "Could not remove image from cloud!");
+    }
+  }
+
+  if (file) {
+    const { url, public_id } = await uploadImageToCloud(file.path);
+    user.avatar = { url, public_id };
+  }
+
+  await user.save();
+  res.status(201).json({ user: formatUser(user) });
+};
+
 exports.signIn = async (req, res) => {
   const { phone, password } = req.body;
 
@@ -189,7 +239,7 @@ exports.signIn = async (req, res) => {
   const matched = await user.comparePassword(password);
   if (!matched) return sendError(res, "Phone/Password mismatch!");
 
-  const { _id, name, role, isVerified, avatar } = user;
+  const { _id, name, isVerified, avatar } = user;
 
   const jwtToken = jwt.sign({ userId: _id }, process.env.JWT_SECRET);
 

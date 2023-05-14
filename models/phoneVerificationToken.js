@@ -27,6 +27,8 @@ phoneVerificationTokenSchema.pre("save", async function (next) {
 });
 
 phoneVerificationTokenSchema.methods.compareToken = async function (token) {
+  console.log(token);
+  console.log(this.token);
   const result = await bcrypt.compare(token, this.token);
   return result;
 };

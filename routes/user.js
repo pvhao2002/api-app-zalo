@@ -10,14 +10,20 @@ const {
   addFriend,
   getAllRequestAddFriend,
   answerRequestAddFriend,
+  deleteUser,
+  changePassword,
+  uploadImageUser,
 } = require("../controllers/user");
 const { uploadImage } = require("../middlewares/multer");
 const { isAuth } = require("../middlewares/auth");
-const { isValidPassResetToken } = require("../middlewares/user");
+const {
+  isValidPassResetToken,
+  checkCurrentPassword,
+} = require("../middlewares/user");
 
 const router = express.Router();
 
-router.post("/create", uploadImage.single("avatar"), create);
+router.post("/create", create);
 router.post("/sign-in", signIn);
 router.post("/verify-phone", verifyPhone);
 router.post("/resend-phone-verification-token", resendPhoneVerificationToken);
@@ -28,6 +34,14 @@ router.post(
   sendResetPasswordTokenStatus
 );
 router.post("/reset-password", isValidPassResetToken, resetPassword);
+router.post("/change-password", isAuth, checkCurrentPassword, changePassword);
+router.post("/delete-account", isAuth, deleteUser);
+router.post(
+  "/upload-image",
+  isAuth,
+  uploadImage.single("avatar"),
+  uploadImageUser
+);
 router.post("/add-friend", isAuth, addFriend);
 router.get("/request-add-friends", isAuth, getAllRequestAddFriend);
 router.post("/answer-request-add-friend", isAuth, answerRequestAddFriend);

@@ -2,6 +2,8 @@ const { isValidObjectId } = require("mongoose");
 const PasswordResetToken = require("../models/passwordResetToken");
 const PhoneVerificationToken = require("../models/phoneVerificationToken");
 const { sendError } = require("../utils/helper");
+const User = require("../models/user");
+
 exports.isValidPassResetToken = async (req, res, next) => {
   const { token, userId } = req.body;
 
@@ -16,5 +18,15 @@ exports.isValidPassResetToken = async (req, res, next) => {
   if (!matched) return sendError(res, "Unauthorized access, invalid request!");
 
   req.resetToken = resetToken;
+  next();
+};
+
+exports.checkCurrentPassword = async (req, res, next) => {
+  const { currentPassword } = req.body;
+
+  const user = await User.findById(req.user._id);
+  const matched = await user.comparePassword(currentPassword);
+  if (!matched) return sendError(res, "The current password is not correct");
+
   next();
 };

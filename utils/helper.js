@@ -29,13 +29,13 @@ exports.uploadImageToCloud = async (file) => {
 };
 
 exports.formatUser = (user) => {
-  const { name, phone, role, _id, isVerified, avatar } = user;
+  const { name, phone, _id, isVerified, avatar } = user;
   return {
     id: _id,
     name,
     phone,
     isVerified,
-    avatar: avatar?.url,
+    avatar: avatar,
   };
 };
 
