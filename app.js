@@ -31,28 +31,34 @@ server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`.blue.bold);
 });
 
-let users = [];
-io.on("connection", (client) => {
-  console.log("Client connected");
-  client.on("register", (data) => {
-    let result = false;
-    if (users.indexOf(data) === -1) {
-      users.push(data);
-      client.un = data;
-      result = true;
-    }
-    client.emit("result-register", { result });
+io.on("connection", (socket) => {
+  console.log("Connected to socket.io");
+  socket.on("setup", (userData) => {
+    socket.join(userData._id);
+    socket.emit("connected");
   });
 
-  client.on("send-message", (data) => {
-    console.log(`Message from ${client.un}: ${data}`);
+  socket.on("join chat", (room) => {
+    socket.join(room);
+    console.log("User Joined Room: " + room);
+  });
+  socket.on("typing", (room) => socket.in(room).emit("typing"));
+  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
 
-    // send all client
-    io.emit("response-message", { message: client.un + ": " + data });
+  socket.on("new message", (newMessageRecieved) => {
+    var chat = newMessageRecieved.chat;
+
+    if (!chat.users) return console.log("chat.users not defined");
+
+    chat.users.forEach((user) => {
+      if (user._id == newMessageRecieved.sender._id) return;
+
+      socket.in(user._id).emit("message recieved", newMessageRecieved);
+    });
   });
 
-  client.on("send-record", (data) => {
-    console.log(data);
-    io.emit("response-record", { message: data });
+  socket.off("setup", () => {
+    console.log("USER DISCONNECTED");
+    socket.leave(userData._id);
   });
 });
