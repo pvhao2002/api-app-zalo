@@ -49,7 +49,7 @@ exports.create = async (req, res) => {
 
   res.status(201).json({
     user: {
-      id: newUser._id,
+      _id: newUser._id,
       name: newUser.name,
       phone: newUser.phone,
     },
@@ -79,7 +79,7 @@ exports.verifyPhone = async (req, res) => {
   const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
   res.json({
     user: {
-      id: user._id,
+      _id: user._id,
       name: user.name,
       phone: user.phone,
       token: jwtToken,
@@ -152,7 +152,7 @@ exports.forgetPassword = async (req, res) => {
   // generatePhoneTransporter(phone, OTP);
 
   res.json({
-    id: user._id,
+    _id: user._id,
     message: "OTP has been sent to your phone.",
   });
 };
@@ -203,6 +203,16 @@ exports.resetPassword = async (req, res) => {
   });
 };
 
+exports.getSingleUser = async (req, res) => {
+  const { userId } = req.body;
+
+  if (!isValidObjectId(userId)) return sendError(res, "Invalid user");
+
+  const user = await User.findById(userId);
+
+  res.json(user);
+};
+
 exports.deleteUser = async (req, res) => {
   await User.findByIdAndDelete(req.user._id);
 
@@ -244,7 +254,7 @@ exports.signIn = async (req, res) => {
   const jwtToken = jwt.sign({ userId: _id }, process.env.JWT_SECRET);
 
   res.json({
-    id: _id,
+    _id: _id,
     name,
     phone,
     token: jwtToken,

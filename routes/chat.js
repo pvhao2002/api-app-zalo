@@ -12,9 +12,9 @@ const {
 } = require("../controllers/chat");
 const { isAuth } = require("../middlewares/auth");
 
-router.post("/createChat", isAuth, createChat);
-router.post("/accessChat", isAuth, accessChat);
-router.get("/getChats", isAuth, getChats);
+router.post("/create-chat", isAuth, createChat);
+router.post("/access-chat", isAuth, accessChat);
+router.get("/get-chat", isAuth, getChats);
 router.post("/group/create", isAuth, createGroup);
 router.put("/group/rename", isAuth, renameGroup);
 router.put("/group/add-user", isAuth, addUserToGroup);

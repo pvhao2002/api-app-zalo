@@ -6,6 +6,6 @@ const { sendMessage, getAllMessages } = require("../controllers/message");
 const { isAuth } = require("../middlewares/auth");
 
 router.post("/send-message", isAuth, sendMessage);
-router.get("/", isAuth, getAllMessages);
+router.post("/get-messages", isAuth, getAllMessages);
 
 module.exports = router;

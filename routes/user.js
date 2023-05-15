@@ -13,6 +13,7 @@ const {
   deleteUser,
   changePassword,
   uploadImageUser,
+  getSingleUser,
 } = require("../controllers/user");
 const { uploadImage } = require("../middlewares/multer");
 const { isAuth } = require("../middlewares/auth");
@@ -35,6 +36,7 @@ router.post(
 );
 router.post("/reset-password", isValidPassResetToken, resetPassword);
 router.post("/change-password", isAuth, checkCurrentPassword, changePassword);
+router.post("/get-user", isAuth, getSingleUser);
 router.post("/delete-account", isAuth, deleteUser);
 router.post(
   "/upload-image",

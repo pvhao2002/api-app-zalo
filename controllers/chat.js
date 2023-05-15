@@ -56,17 +56,17 @@ exports.getChats = async (req, res) => {
   })
     .populate("users", "-password")
     .populate("owner", "-password")
-    .populate("latestMessage")
+    .populate("messages")
     .sort({ updatedAt: -1 });
 
   if (!chats) return sendError(res, "Chat not found!");
 
   chats = await User.populate(chats, {
-    path: "latestMessage.sender",
+    path: "messages.sender",
     select: "name phone isVerified avatar",
   });
 
-  res.json({ chats });
+  res.json(chats);
 };
 
 exports.createGroup = async (req, res) => {

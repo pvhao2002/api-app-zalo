@@ -12,6 +12,11 @@ const messageSchema = mongoose.Schema(
       trim: true,
       required: true,
     },
+    chat: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Chat",
+      required: true,
+    },
     // readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }

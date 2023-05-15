@@ -48,16 +48,18 @@ exports.getAllMessages = async (req, res) => {
     select: "name phone isVerified avatar",
   });
 
-  res.json({
-    _id: chat._id,
-    messages: chat.messages.map((c) => ({
-      id: c._id,
+  res.json(
+    chat.messages.map((c) => ({
+      _id: c._id,
       content: c.content,
       sender: {
+        _id: c.sender._id,
         name: c.sender.name,
         phone: c.sender.phone,
         isVerified: c.sender.isVerified,
+        friends: c.sender.friends,
+        avatar: c.sender.avatar,
       },
-    })),
-  });
+    }))
+  );
 };
