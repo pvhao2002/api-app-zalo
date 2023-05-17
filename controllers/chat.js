@@ -10,7 +10,7 @@ exports.createChat = async (req, res) => {
 
   const user = await User.findById(userId);
   const newChat = await Chat({
-    name: user.name,
+    name: user.name + " " + req.user.name,
     users: [req.user._id, userId],
     isGroup: false,
   });
@@ -36,16 +36,9 @@ exports.accessChat = async (req, res) => {
       { users: { $elemMatch: { $eq: req.user._id } } },
       { users: { $elemMatch: { $eq: userId } } },
     ],
-  })
-    .populate("users", "-password")
-    .populate("latestMessage");
+  }).populate("users", "-password");
 
   if (!isChat) return sendError(res, "Chat not found!");
-
-  isChat = await User.populate(isChat, {
-    path: "latestMessage.sender",
-    select: "name phone isVerified avatar",
-  });
 
   res.json(isChat);
 };

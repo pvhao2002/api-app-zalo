@@ -299,7 +299,7 @@ exports.addFriend = async (req, res) => {
   const requestAddFriend = await RequestAddFriend({
     owner: req.user,
     receiver: userId,
-  });
+  }).populate("receiver", "-password");
   await requestAddFriend.save();
 
   res.json(requestAddFriend);
@@ -308,7 +308,9 @@ exports.addFriend = async (req, res) => {
 exports.getAllRequestAddFriend = async (req, res) => {
   const request = await RequestAddFriend.find({
     receiver: req.user._id,
-  });
+  })
+    .populate("owner", "-password")
+    .populate("receiver", "-password");
 
   res.json(request);
 };
