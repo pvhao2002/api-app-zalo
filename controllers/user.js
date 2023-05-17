@@ -29,8 +29,8 @@ exports.create = async (req, res) => {
   // }
 
   const url =
-    "https://res.cloudinary.com/myshop-it/image/upload/v1669052876/nnldaw9n0z6ayopgjvy8.jpg";
-  const public_id = "nnldaw9n0z6ayopgjvy8";
+    "https://res.cloudinary.com/myshop-it/image/upload/v1669050531/ypf1iwpbnfvtiahb8yyx.jpg";
+  const public_id = "ypf1iwpbnfvtiahb8yyx";
 
   newUser.avatar = { url, public_id };
 
@@ -264,16 +264,33 @@ exports.signIn = async (req, res) => {
 };
 
 exports.searchUser = async (req, res) => {
-  const { name } = req.body;
+  const { phone } = req.body;
 
-  if (!name.trim()) return sendError(res, "Not found name");
+  if (!phone.trim()) return sendError(res, "Not found phone");
 
   const result = await User.find({
-    name: { $regex: name, $options: "i" },
+    phone: { $regex: phone, $options: "i" },
   });
 
   const users = result.map((user) => formatUser(user));
   res.json({ results: users });
+};
+
+exports.getFriends = async (req, res) => {
+  const user = await User.findById(req.user._id).populate(
+    "friends",
+    "-password"
+  );
+
+  res.json(
+    user.friends.map((c) => ({
+      _id: c._id,
+      name: c.name,
+      phone: c.phone,
+      isVerified: c.isVerified,
+      avatar: c.avatar,
+    }))
+  );
 };
 
 exports.addFriend = async (req, res) => {

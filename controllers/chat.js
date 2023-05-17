@@ -66,6 +66,11 @@ exports.getChats = async (req, res) => {
     select: "name phone isVerified avatar",
   });
 
+  chats = await Chat.populate(chats, {
+    path: "messages.chat",
+    select: "name",
+  });
+
   res.json(chats);
 };
 

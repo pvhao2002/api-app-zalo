@@ -14,6 +14,8 @@ const {
   changePassword,
   uploadImageUser,
   getSingleUser,
+  searchUser,
+  getFriends,
 } = require("../controllers/user");
 const { uploadImage } = require("../middlewares/multer");
 const { isAuth } = require("../middlewares/auth");
@@ -37,13 +39,15 @@ router.post(
 router.post("/reset-password", isValidPassResetToken, resetPassword);
 router.post("/change-password", isAuth, checkCurrentPassword, changePassword);
 router.post("/get-user", isAuth, getSingleUser);
-router.post("/delete-account", isAuth, deleteUser);
+router.post("/search-user", searchUser);
+router.delete("/delete-account", isAuth, deleteUser);
 router.post(
   "/upload-image",
   isAuth,
   uploadImage.single("avatar"),
   uploadImageUser
 );
+router.get("/get-friends", isAuth, getFriends);
 router.post("/add-friend", isAuth, addFriend);
 router.get("/request-add-friends", isAuth, getAllRequestAddFriend);
 router.post("/answer-request-add-friend", isAuth, answerRequestAddFriend);

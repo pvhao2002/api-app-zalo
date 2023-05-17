@@ -32,6 +32,11 @@ exports.sendMessage = async (req, res) => {
     select: "name phone isVerified avatar",
   });
 
+  fullMessage = await Message.populate(fullMessage, {
+    path: "chat.messages",
+    select: "content",
+  });
+
   if (!fullMessage) return sendError(res, "Message is invalid");
 
   res.json(fullMessage);
@@ -48,18 +53,34 @@ exports.getAllMessages = async (req, res) => {
     select: "name phone isVerified avatar",
   });
 
-  res.json(
-    chat.messages.map((c) => ({
-      _id: c._id,
-      content: c.content,
-      sender: {
-        _id: c.sender._id,
-        name: c.sender.name,
-        phone: c.sender.phone,
-        isVerified: c.sender.isVerified,
-        friends: c.sender.friends,
-        avatar: c.sender.avatar,
-      },
-    }))
-  );
+  chat = chat.messages.map((c) => ({
+    _id: c._id,
+    content: c.content,
+    sender: {
+      _id: c.sender._id,
+      name: c.sender.name,
+      phone: c.sender.phone,
+      isVerified: c.sender.isVerified,
+      friends: c.sender.friends,
+      avatar: c.sender.avatar,
+    },
+    chat,
+  }));
+
+  chat = await User.populate(chat, {
+    path: "chat.users",
+    select: "name phone isVerified avatar",
+  });
+
+  chat = await Message.populate(chat, {
+    path: "chat.messages.chat",
+    select: "isGroup",
+  });
+
+  chat = await User.populate(chat, {
+    path: "chat.owner",
+    select: "name phone isVerified avatar",
+  });
+
+  res.json(chat);
 };
