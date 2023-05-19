@@ -27,14 +27,18 @@ TWILIO_AUTH_TOKEN=
 Những thông tin config trong file .env bao gồm: JWT, MONGO DB, CLOUDINARY, TWILIO.
 
 
-Lưu ý: Nếu chạy máy window
+Lưu ý: 
+Nếu chạy máy window
 thì đổi đoạn sau đây trong file package.json
+
  "scripts": {
     "start": "node app.js",
     "dev": "export NODE_ENV=DEVELOPMENT && nodemon app",
     "prod": "export NODE_ENV=PRODUCTION && nodemon app"
   }
+  
   thành
+  
    "scripts": {
     "start": "node app.js",
     "dev": "SET NODE_ENV=DEVELOPMENT && nodemon app",
