@@ -6,12 +6,19 @@
 -   Tạo file .env cấu hình file .env như sau:
 
 NODE_ENV=DEVELOPMENT
+
 JWT_SECRET=
+
 MONGO_URI= "Đường dẫn tới database MONGODB của bạn"
+
 CLOUD_API_SECRET=
+
 CLOUD_API_KEY=
+
 CLOUD_NAME=
+
 TWILIO_ACCOUNT_SID=
+
 TWILIO_AUTH_TOKEN=
 
 - Sau đó gõ lệnh npm install
